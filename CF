@@ -1,4 +1,3 @@
-# 注意规则在满足自己需求情况下，尽量做到精简，不要过度复杂，以免影响性能。
 # 机场订阅
 proxy-providers:
   CF:
@@ -9,7 +8,7 @@ proxy-providers:
       enable: true
       url: https://www.gstatic.com/generate_204
       interval: 300
-    proxy: 直连
+    proxy: DIRECT
 
 # 节点信息
 proxies:
@@ -28,6 +27,10 @@ unified-delay: true
 tcp-concurrent: true
 log-level: warning
 find-process-mode: 'off'
+
+#TCP并发
+tcp-concurrent: true
+
 # interface-name: en0
 global-client-fingerprint: chrome
 keep-alive-idle: 600
@@ -37,21 +40,25 @@ profile:
   store-selected: true
   store-fake-ip: true
 
-# 控制面板
-external-controller: 10.0.0.1:9090
-secret: ""
-external-ui: "/etc/mihomo/run/ui"
-external-ui-name: zashboard
-external-ui-url: "https://github.com/Zephyruso/zashboard/archive/refs/heads/gh-pages.zip"
+# tun配置
+tun:
+  stack: mixed
 
-# DNS模块
+# 控制面板
+external-controller: '[::]:9090'
+secret: ""
+external-ui: "ui"
+external-ui-name: zashboard
+external-ui-url: "https://github.com/Zephyruso/zashboard/releases/latest/download/dist-cdn-fonts.zip"
+
+# DNS配置
 dns:
   enable: true
-  listen: 0.0.0.0:1053
+  listen: '[::]:1053'
   ipv6: true
   respect-rules: true
   enhanced-mode: fake-ip
-  fake-ip-range: 28.0.0.1/8
+  fake-ip-range: 198.18.0.1/16
   fake-ip-filter-mode: blacklist
   fake-ip-filter:
     - "RULE-SET:private_domain,cn_domain"
@@ -68,6 +75,28 @@ dns:
   nameserver:
     - 222.85.85.85
     - 222.88.88.88
+
+#嗅探
+sniffer:
+  enable: true
+  force-dns-mapping: true
+  parse-pure-ip: true
+  sniff:
+    HTTP:
+      port:
+        - "80"
+        - "8080"
+      override-destination: true
+    TLS:
+      port:
+        - "443"
+        - "8443"
+      override-destination: true
+    QUIC:
+      port:
+        - "443"
+        - "8443"
+      override-destination: true
  
 # 出站策略
 # 注意锚点必须放在引用的上方，可以集中把锚点全部放yaml的顶部。
@@ -88,12 +117,11 @@ proxy-groups:
   - {name: 🇰🇷 韩国, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "(?i)韩|kr|Korea"}
   - {name: 🇯🇵 日本, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "(?i)日|jp|japan"}
   - {name: 🇸🇬 新加坡, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "(?i)新加坡|狮城|sg|Singapore"}
-  - {name: 🇺🇲 美国, type: select, include-all: true, tolerance: 20, interval: 300, filter: "(?i)美|us|unitedstates|united states"}
+  - {name: 🇺🇲 美国, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "(?i)美|us|unitedstates|united states"}
   - {name: ♻️ 自动选择, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "^((?!(🟢 DIRECT)).)*$"}
   - {name: 🌐 全部节点, type: select, include-all: true}
 
 # 规则匹配
-# 此规则部分没有做防泄露处理，因为弊严重大于利！
 rules:
   - RULE-SET,private_domain,DIRECT
   - RULE-SET,proxylite,🚀 默认代理

@@ -71,7 +71,7 @@ dns:
  
 # 出站策略
 # 注意锚点必须放在引用的上方，可以集中把锚点全部放yaml的顶部。
-pr: &pr {type: select, proxies: [🚀 默认代理, ♻️ 自动选择, 📡 运营商, 🇭🇰 香港, 🇨🇳 台湾,🇯🇵 日本,🇰🇷 韩国, 🇸🇬 新加坡, 🇺🇲 美国, 🌐 全部节点, 🟢 DIRECT]}
+pr: &pr {type: select, proxies: [🚀 默认代理,♻️ 自动选择, 📡 运营商, 🇭🇰 香港, 🇨🇳 台湾,🇯🇵 日本,🇰🇷 韩国, 🇸🇬 新加坡, 🇺🇲 美国, 🌐 全部节点, 🟢 DIRECT]}
 proxy-groups:
   - {name: 🚀 默认代理, type: select, proxies: [♻️ 自动选择, 🇭🇰 香港, 🇨🇳 台湾, 🇯🇵 日本, 🇰🇷 韩国, 🇸🇬 新加坡, 🇺🇲 美国, 🌐 全部节点, 🟢 DIRECT]}
   - {name: 📹 YouTube, <<: *pr}
@@ -82,19 +82,18 @@ proxy-groups:
   - {name: 📲 Telegram, <<: *pr}
   - {name: ✈️ Speedtest, <<: *pr}
   - {name: 🐟 漏网之鱼, <<: *pr}
-  - {name: 📡 运营商, type: url-test, include-all: true, filter: "(?i)at|cmcc"}
-  - {name: 🇭🇰 香港, type: url-test, include-all: true, filter: "(?i)港|hk|hongkong|hong kong"}
-  - {name: 🇨🇳 台湾, type: url-test, include-all: true, filter: "(?i)台|tw|taiwan|tai wan"}
-  - {name: 🇰🇷 韩国, type: url-test, include-all: true, filter: "(?i)韩|kr|Korea"}
-  - {name: 🇯🇵 日本, type: url-test, include-all: true, filter: "(?i)日|jp|japan"}
-  - {name: 🇸🇬 新加坡, type: url-test, include-all: true, filter: "(?i)新加坡|狮城|sg|Singapore"}
-  - {name: 🇺🇲 美国, type: select, include-all: true, filter: "(?i)美|us|unitedstates|united states"}
+  - {name: 📡 运营商, type: url-test, include-all: true,tolerance: 20, interval: 300, filter: "(?i)at|cmcc"}
+  - {name: 🇭🇰 香港, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "(?i)港|hk|hongkong|hong kong"}
+  - {name: 🇨🇳 台湾, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "(?i)台|tw|taiwan|tai wan"}
+  - {name: 🇰🇷 韩国, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "(?i)韩|kr|Korea"}
+  - {name: 🇯🇵 日本, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "(?i)日|jp|japan"}
+  - {name: 🇸🇬 新加坡, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "(?i)新加坡|狮城|sg|Singapore"}
+  - {name: 🇺🇲 美国, type: select, include-all: true, tolerance: 20, interval: 300, filter: "(?i)美|us|unitedstates|united states"}
   - {name: ♻️ 自动选择, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "^((?!(🟢 DIRECT)).)*$"}
   - {name: 🌐 全部节点, type: select, include-all: true}
 
 # 规则匹配
 # 此规则部分没有做防泄露处理，因为弊严重大于利！
-rules:
 rules:
   - RULE-SET,private_domain,DIRECT
   - RULE-SET,proxylite,🚀 默认代理
@@ -112,9 +111,7 @@ rules:
   - RULE-SET,telegram_ip,📲 Telegram,no-resolve
   - RULE-SET,cn_ip,DIRECT
   - RULE-SET,AD_domain,REJECT
-  - RULE-SET,EasyList_domain,REJECT
   - RULE-SET,EasyListChina_domain,REJECT
-  - RULE-SET,EasyPrivacy_domain,REJECT
   - RULE-SET,ProgramAD_domain,REJECT
   - MATCH,🐟 漏网之鱼
 # 规则集
@@ -123,6 +120,7 @@ rule-anchor:
   ip: &ip {type: http, interval: 86400, behavior: ipcidr, format: mrs}
   domain: &domain {type: http, interval: 86400, behavior: domain, format: mrs}
   class_text: &class_text {type: http, interval: 86400, behavior: classical, format: text}
+
 rule-providers: 
   private_domain: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/private.mrs"}
   proxylite: { <<: *class_text, url: "https://raw.githubusercontent.com/qichiyuhub/rule/refs/heads/main/proxy.list"}
@@ -136,11 +134,9 @@ rule-providers:
   gfw_domain: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/gfw.mrs"}
   geolocation-!cn: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/geolocation-!cn.mrs"}
   cn_domain: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.mrs"}
-  AD_domain: { <<: *domain, url: "https://raw.githubusercontent.com/earoftoast/clash-rules/main/AD.yaml"}
-  EasyList_domain: { <<: *domain, url: "https://raw.githubusercontent.com/earoftoast/clash-rules/main/EasyList.yaml"}
-  EasyListChina_domain: { <<: *domain, url: "https://raw.githubusercontent.com/earoftoast/clash-rules/main/EasyListChina.yaml"}
-  EasyPrivacy_domain: { <<: *domain, url: "https://raw.githubusercontent.com/earoftoast/clash-rules/main/EasyPrivacy.yaml"}
-  ProgramAD_domain: { <<: *domain, url: "https://raw.githubusercontent.com/earoftoast/clash-rules/main/ProgramAD.yaml"}
+  AD_domain: { <<: *class, url: "https://raw.githubusercontent.com/earoftoast/clash-rules/main/AD.yaml"}
+  EasyListChina_domain: { <<: *class, url: "https://raw.githubusercontent.com/earoftoast/clash-rules/main/EasyListChina.yaml"}
+  ProgramAD_domain: { <<: *class, url: "https://raw.githubusercontent.com/earoftoast/clash-rules/main/ProgramAD.yaml"}
 
   cn_ip: { <<: *ip, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/cn.mrs"}
   google_ip: { <<: *ip, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/google.mrs"}
